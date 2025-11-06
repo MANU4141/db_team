@@ -61,6 +61,7 @@ CREATE TABLE LIKE_OR_DISLIKE (
         ON DELETE CASCADE
 );
 
+
 SHOW TABLES;
 use SNS;
 SELECT * from post
