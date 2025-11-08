@@ -1,23 +1,23 @@
 package ui;
 
-import ui.theme.RoundedButton;
-import ui.theme.Theme;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import ui.theme.RoundedButton;
+import ui.theme.Theme;
 
 /**
  * 카드형 UI의 글쓰기 다이얼로그
  * - 파일 경로/파일명 입력 + 파일 선택
  * - 오른쪽 미리보기(정사각 220x220, 비율 유지)
+ * - 본문(TextArea) 입력
  * - 저장/취소 단축키: Ctrl+S / ESC
  */
 public class PostWriteDialog extends JDialog {
@@ -26,12 +26,15 @@ public class PostWriteDialog extends JDialog {
     private final JTextField tfName = new JTextField();
     private final JLabel preview = new JLabel("", SwingConstants.CENTER);
 
+    // ★ 추가: 본문 입력 영역
+    private final JTextArea taContent = new JTextArea();
+
     private boolean approved = false;
 
     public PostWriteDialog(Window owner) {
         super(owner, "글쓰기", ModalityType.APPLICATION_MODAL);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(640, 420);
+        setSize(720, 520); // 본문 영역을 위해 조금 키움
         setLocationRelativeTo(owner);
         getContentPane().setBackground(Theme.WHITE);
         setLayout(new BorderLayout());
@@ -61,9 +64,10 @@ public class PostWriteDialog extends JDialog {
         gc.fill = GridBagConstraints.HORIZONTAL;
 
         // 라벨
-        JLabel lPath = label("파일 경로:");
-        JLabel lName = label("파일명:");
-        JLabel lPick = label("파일 선택:");
+        JLabel lPath    = label("파일 경로:");
+        JLabel lName    = label("파일명:");
+        JLabel lPick    = label("파일 선택:");
+        JLabel lContent = label("내용:"); // ★ 추가
 
         // 입력 필드
         styleInput(tfPath);
@@ -87,7 +91,7 @@ public class PostWriteDialog extends JDialog {
         preview.setBorder(new LineBorder(Theme.GRAY_200, 1, true));
         preview.setText("<html><div style='color:#999;'>미리보기</div></html>");
 
-        // 배치 (미리보기는 크기 고정: fill=NONE, weight 0)
+        // ===== 좌측 폼: 경로/파일명/파일선택
         gc.gridx = 0; gc.gridy = 0; gc.weightx = 0;               card.add(lPath, gc);
         gc.gridx = 1; gc.gridy = 0; gc.weightx = 1;               card.add(tfPath, gc);
         gc.gridx = 0; gc.gridy = 1; gc.weightx = 0;               card.add(lName, gc);
@@ -99,8 +103,32 @@ public class PostWriteDialog extends JDialog {
         pickLine.add(btnPick);
         gc.gridx = 1; gc.gridy = 2; gc.weightx = 1;               card.add(pickLine, gc);
 
+        // ★ 본문 라벨
+        gc.gridx = 0; gc.gridy = 3; gc.weightx = 0; gc.fill = GridBagConstraints.HORIZONTAL;
+        card.add(lContent, gc);
+
+        // ★ 본문 입력(TextArea + ScrollPane)
+        taContent.setLineWrap(true);
+        taContent.setWrapStyleWord(true);
+        taContent.setFont(Theme.fontRegular(13));
+        taContent.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(Theme.GRAY_200, 1, true),
+                new EmptyBorder(8, 10, 8, 10)
+        ));
+        taContent.setRows(8);
+        JScrollPane spContent = new JScrollPane(taContent,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        gc.gridx = 1; gc.gridy = 3; gc.weightx = 1;
+        gc.weighty = 1;                        // 세로 공간도 차지
+        gc.fill = GridBagConstraints.BOTH;
+        gc.gridwidth = 1;
+        card.add(spContent, gc);
+
+        // ===== 우측 미리보기 (그리드 높이를 본문까지 확장)
         GridBagConstraints pv = new GridBagConstraints();
-        pv.gridx = 2; pv.gridy = 0; pv.gridheight = 3;
+        pv.gridx = 2; pv.gridy = 0; pv.gridheight = 4;
         pv.insets = new Insets(0, 24, 0, 0);
         pv.weightx = 0; pv.weighty = 0;
         pv.fill = GridBagConstraints.NONE;
@@ -121,11 +149,14 @@ public class PostWriteDialog extends JDialog {
         btnCancel.addActionListener(e -> { approved = false; dispose(); });
         btnSave.addActionListener(e -> { approved = true; dispose(); });
 
-        // 단축키: ESC(취소), ⌘/Ctrl+S(저장), 기본버튼=저장
+        // 단축키: ESC(취소), ⌘/Ctrl+S(저장), 기본버튼=저장, ⌘/Ctrl+Enter(저장)
         getRootPane().registerKeyboardAction(e -> btnCancel.doClick(),
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
         getRootPane().registerKeyboardAction(e -> btnSave.doClick(),
                 KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(e -> btnSave.doClick(),
+                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
         getRootPane().setDefaultButton(btnSave);
     }
@@ -134,6 +165,12 @@ public class PostWriteDialog extends JDialog {
     public boolean isApproved() { return approved; }
     public String getFilePath() { return blankToNull(tfPath.getText()); }
     public String getFileName() { return blankToNull(tfName.getText()); }
+
+    /** ★ 추가: 본문 텍스트 반환 */
+    public String getContent() {
+        String s = taContent.getText();
+        return (s == null || s.isBlank()) ? null : s.trim();
+    }
 
     /* ===================== helpers ===================== */
     private void openChooser() {
