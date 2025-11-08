@@ -39,5 +39,13 @@ public interface SnsPort {
     List<PostView> search(int requesterId, String keyword, int limit);
     /** type = "LIKE" | "DISLIKE" */
     String toggleReaction(int userId, int postId, String type);
+
+    /** 기존 시그니처(파일 기반) */
     void createPost(int userId, String filePath, String fileName);
+
+    /** 신규 시그니처: 텍스트 본문까지 함께 저장 (하위호환용 기본 메서드) */
+    default void createPost(int userId, String filePath, String fileName, String text) {
+        // 구현체 수정 전에도 안전하게 동작하도록 기존 메서드로 위임
+        createPost(userId, filePath, fileName);
+    }
 }
