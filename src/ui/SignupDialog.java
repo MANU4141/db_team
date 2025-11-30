@@ -10,12 +10,13 @@ import ui.theme.Theme;
 public class SignupDialog extends JDialog {
 
     private final JTextField username = new JTextField();
-    private final JTextField email    = new JTextField();
-    private final JPasswordField pw1  = new JPasswordField();
-    private final JPasswordField pw2  = new JPasswordField();
+    private final JTextField email = new JTextField();
+    private final JPasswordField pw1 = new JPasswordField();
+    private final JPasswordField pw2 = new JPasswordField();
 
     /** (username, email, password) -> 성공 시 호출 */
-    private TriConsumer<String, String, String> onSubmit = (u, e, p) -> {};
+    private TriConsumer<String, String, String> onSubmit = (u, e, p) -> {
+    };
 
     @FunctionalInterface
     public interface TriConsumer<A, B, C> {
@@ -37,20 +38,44 @@ public class SignupDialog extends JDialog {
         c.fill = GridBagConstraints.HORIZONTAL;
 
         // 사용자명
-        c.gridx = 0; c.gridy = 0; c.weightx = 0; form.add(new JLabel("사용자명"), c);
-        c.gridx = 1; c.weightx = 1; decorate(username); form.add(username, c);
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 0;
+        form.add(new JLabel("사용자명"), c);
+        c.gridx = 1;
+        c.weightx = 1;
+        decorate(username);
+        form.add(username, c);
 
         // 이메일
-        c.gridx = 0; c.gridy = 1; c.weightx = 0; form.add(new JLabel("이메일"), c);
-        c.gridx = 1; c.weightx = 1; decorate(email); form.add(email, c);
+        c.gridx = 0;
+        c.gridy = 1;
+        c.weightx = 0;
+        form.add(new JLabel("이메일"), c);
+        c.gridx = 1;
+        c.weightx = 1;
+        decorate(email);
+        form.add(email, c);
 
         // 비밀번호
-        c.gridx = 0; c.gridy = 2; c.weightx = 0; form.add(new JLabel("비밀번호"), c);
-        c.gridx = 1; c.weightx = 1; decorate(pw1); form.add(pw1, c);
+        c.gridx = 0;
+        c.gridy = 2;
+        c.weightx = 0;
+        form.add(new JLabel("비밀번호"), c);
+        c.gridx = 1;
+        c.weightx = 1;
+        decorate(pw1);
+        form.add(pw1, c);
 
         // 비밀번호 확인
-        c.gridx = 0; c.gridy = 3; c.weightx = 0; form.add(new JLabel("비밀번호 확인"), c);
-        c.gridx = 1; c.weightx = 1; decorate(pw2); form.add(pw2, c);
+        c.gridx = 0;
+        c.gridy = 3;
+        c.weightx = 0;
+        form.add(new JLabel("비밀번호 확인"), c);
+        c.gridx = 1;
+        c.weightx = 1;
+        decorate(pw2);
+        form.add(pw2, c);
 
         add(form, BorderLayout.CENTER);
 
@@ -58,7 +83,8 @@ public class SignupDialog extends JDialog {
         south.setOpaque(false);
         var cancel = new RoundedButton("취소", true);
         var submit = new RoundedButton("가입하기");
-        south.add(cancel); south.add(submit);
+        south.add(cancel);
+        south.add(submit);
         add(south, BorderLayout.SOUTH);
 
         cancel.addActionListener(e -> dispose());
@@ -67,15 +93,13 @@ public class SignupDialog extends JDialog {
     }
 
     private void decorate(JComponent comp) {
-        comp.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Theme.GRAY_200),
-                new EmptyBorder(8, 10, 8, 10)
-        ));
+        comp.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Theme.GRAY_200),
+                new EmptyBorder(8, 10, 8, 10)));
         comp.setFont(Theme.fontRegular(13));
     }
 
     private void submit() {
-        var u  = username.getText().trim();
+        var u = username.getText().trim();
         var em = email.getText().trim();
         var p1 = new String(pw1.getPassword());
         var p2 = new String(pw2.getPassword());
@@ -104,7 +128,8 @@ public class SignupDialog extends JDialog {
 
     /** 가입 버튼 눌렀을 때 실행할 처리 지정 */
     public SignupDialog onSubmit(TriConsumer<String, String, String> cb) {
-        this.onSubmit = (cb == null) ? (u, e, p) -> {} : cb;
+        this.onSubmit = (cb == null) ? (u, e, p) -> {
+        } : cb;
         return this;
     }
 }

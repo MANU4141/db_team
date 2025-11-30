@@ -19,7 +19,7 @@ public class HomeFrame extends JFrame {
 
     private final PostListPanel listPanel;
 
-    public HomeFrame(SnsPort port, int myUserId, String myName){
+    public HomeFrame(SnsPort port, int myUserId, String myName) {
         super("홈 · " + myName);
         this.port = port;
         this.myUserId = myUserId;
@@ -46,10 +46,8 @@ public class HomeFrame extends JFrame {
         bottom.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         var searchField = new JTextField();
-        searchField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Theme.GRAY_200),
-                BorderFactory.createEmptyBorder(8, 8, 8, 8)
-        ));
+        searchField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Theme.GRAY_200),
+                BorderFactory.createEmptyBorder(8, 8, 8, 8)));
         var searchBtn = new RoundedButton("검색", true);
 
         JPanel left = new JPanel(new BorderLayout(6, 0));
@@ -58,7 +56,7 @@ public class HomeFrame extends JFrame {
 
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         var refreshBtn = new RoundedButton("새로고침", true);
-        var writeBtn   = new RoundedButton("글쓰기");
+        var writeBtn = new RoundedButton("글쓰기");
         right.add(refreshBtn);
         right.add(writeBtn);
 
@@ -73,17 +71,18 @@ public class HomeFrame extends JFrame {
         // 글쓰기: 파일+텍스트 본문을 함께 저장
         writeBtn.addActionListener(e -> {
             PostWriteDialog dlg = new PostWriteDialog(this);
-            dlg.setVisible(true);                // 모달: 닫힐 때까지 대기
-            if (!dlg.isApproved()) return;       // 취소 시 종료
+            dlg.setVisible(true); // 모달: 닫힐 때까지 대기
+            if (!dlg.isApproved())
+                return; // 취소 시 종료
 
-            String path = dlg.getFilePath();     // null 가능
-            String name = dlg.getFileName();     // null 가능
-            String text = dlg.getContent();      // ★ 본문 (null 또는 빈 문자열 가능)
+            String path = dlg.getFilePath(); // null 가능
+            String name = dlg.getFileName(); // null 가능
+            String text = dlg.getContent(); // ★ 본문 (null 또는 빈 문자열 가능)
 
             // SnsPort에 추가한 오버로드 사용
             port.createPost(myUserId, path, name, text);
 
-            listPanel.reload();                  // 새 글 반영
+            listPanel.reload(); // 새 글 반영
         });
     }
 }
